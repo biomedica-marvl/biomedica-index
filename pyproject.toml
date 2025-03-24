@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "biomedica-index"
+authors = [
+    {name = "Christopher Polzak"}
+]
+description = "Queryable index for Biomedica dataset"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+classifiers = [
+    'Programming Language :: Python :: 3',
+    'Operating System :: OS Independent',
+]
+dependencies = [
+    "numpy",
+    "bm25s",
+    "chromadb",
+    "boto3>=1.37",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+image = ["torch>=2", "torchvision>=0.20"]
+text = ["torch>=2", "transformers"]
+all = ["torch>=2", "torchvision>=0.20", "transformers"]
+
+[tools.setuptools.packages.find]
+where = ["src"]
+inculde = ["*"]
+namespaces = false
+
+[tool.setuptools.dynamic]
+version = {attr = "biomedica_index.__version__"}
