@@ -7,7 +7,7 @@ if 'BIOMEDICA_INDEX_PATH' in os.environ:
     INDEX_PATH = os.environ['BIOMEDICA_INDEX_PATH']
 else:
     INDEX_PATH = input("Please enter your local path to the index > ")
-index = bi.BiomedicaRetriever(INDEX_PATH)
+index = bi.BiomedicaIndex(INDEX_PATH)
 loader = bi.BiomedicaArticleLoader(INDEX_PATH)
 index.query_articles(text="dummy initialization/loading query", top_k=1, subsets='all')
 load_end = time.time()
