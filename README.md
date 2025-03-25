@@ -37,13 +37,16 @@ To make the Biomedica dataset queryable, we currently provide two major tools:
 - `BiomedicaIndex`: used to retrieve identifying metadata on relevant articles and figures, given text or image prompts
 - `BiomedicaArticleLoader`: loads full-text article data (the title, abstract, and publish date), given identifying metadata
 
+For full use, we currently require the data needed for the index to be downloaded locally on the user's machine. Available data for the current index functionality is downloadable [from Google Drive](https://drive.google.com/drive/folders/1MM3-birHJobagiznDZYfHtbFpkuawuPN?usp=drive_link). A more practical solution is currently in development, but we release this version to allow interested parties access to the index as quickly as possible.
+
 For a simple initial trial, we have provided a simple [Colab notebook](https://colab.research.google.com/drive/15qyeCCY7nlgSnNstJw9kVLHwlvIUZieB?usp=sharing) for initial testing. To use it, please also see the Mounting Data section below. 
 
-Minimal snippet:
+Minimal snippet for articles:
 ```python
 import biomedica_index as bi
 index = bi.BiomedicaIndex(INDEX_PATH)
 loader = bi.BiomedicaArticleLoader(INDEX_PATH)
+text_query = 'article search query'
 top_articles = index.query_articles(text=text_query, top_k=5, subsets='all')
 for metadata, score in top_articles:
     print(metadata['pmcid'], metadata['subset'])
@@ -51,11 +54,18 @@ for metadata, score in top_articles:
     # do stuff with the article data
 ```
 
-We also provide an example script in `local_article_demo.py` in this repo.
+For figures (note: data is still currently being uploaded to the Drive folder):
+```python
+import biomedica_index as bi
+from PIL import Image
+index = bi.BiomedicaIndex(INDEX_PATH)
+query_image = Image.open('my_query_image.jpg')
+query_text = 'caption search query'
+top_figures = index.query_figures(image=query_image, text=query_text, text_mode='all', \
+                                  top_k=5, subsets=['noncommercial'])
+```
 
 For full details on how to use this package, please see the API reference section below.
-
-For full use, we currently require the data needed for the index to be downloaded locally on the user's machine. Available data for the current index functionality is downloadable [from Google Drive](https://drive.google.com/drive/folders/1MM3-birHJobagiznDZYfHtbFpkuawuPN?usp=drive_link). A more practical solution is currently in development, but we release this version to allow interested parties access to the index as quickly as possible.
 
 ### Mounting Data
 Instead of downloading the full data, the folder can also be mounted using [Google Drive for desktop](https://support.google.com/drive/answer/10838124) or using Google Colab. To achieve this, please open the [Google Drive link to the folder](https://drive.google.com/drive/folders/1MM3-birHJobagiznDZYfHtbFpkuawuPN?usp=drive_link) and follow these instructions to add the shared folder as a shortcut within your main Drive:
