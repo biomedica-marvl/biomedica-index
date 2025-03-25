@@ -1,3 +1,4 @@
+import os
 import json
 from collections import defaultdict
 
@@ -9,16 +10,16 @@ from biomedica_index.utils.embed_utils import SentenceEmbedder, ImageEmbedder
 from biomedica_index.utils.consts import SUBSETS, S3_BUCKET, S3_REGION
 
 class BiomedicaArticleLoader:
-    def __init__(self, index_path, local_map=None):
-        self.local = local_map is not None
+    def __init__(self, index_path, local_article_path=None):
+        self.local_path = local_article_path
+        default_path = f"{index_path}/ARTICLES"
+        if (local_article_path is None) and os.path.exists(default_path):
+            self.local_path = default_path
         self.article_maps = {}
-        if self.local:
-            with open(local_map, 'r') as fh:
-                self.article_maps = json.load(fh)
-        else:
-            article_map_path = f"{index_path}/full_text-kw/full/pmcid_map.json"
-            with open(article_map_path, 'r') as fh:
-                self.article_maps = json.load(fh)
+        article_map_path = f"{index_path}/full_text-kw/full/pmcid_map.json"
+        with open(article_map_path, 'r') as fh:
+            self.article_maps = json.load(fh)
+        if self.local_path is not None:
             self.s3_client = boto3.client('s3', region_name=S3_REGION)
 
     def get_article_s3(self, subset, pmcid):
@@ -35,7 +36,8 @@ class BiomedicaArticleLoader:
         return None, None, None
         
     def get_article_local(self, subset, pmcid):
-        with open(self.article_maps[subset][pmcid], 'r') as article_batch_fh:
+        batch_path = f"{self.local_path}/{self.article_maps[subset][pmcid]}"
+        with open(batch_path, 'r') as article_batch_fh:
             article_batch = json.load(article_batch_fh)
         for article in article_batch:
             if article["accession_id"] == pmcid:
@@ -45,8 +47,8 @@ class BiomedicaArticleLoader:
     def get_article(self, article_metadata):
         if not all(key in article_metadata for key in ('subset', 'pmcid')):
             raise KeyError("Local loading requires `subset` and `pmcid`")
-        get_func = self.get_article_local if self.local else self.get_article_s3
-        return get_func(article_metadata['subset'], article_metadata['pmcid'])
+        get = self.get_article_s3 if self.local_path is None else self.get_article_local
+        return get(article_metadata['subset'], article_metadata['pmcid'])
 
 
 class BiomedicaRetriever:
