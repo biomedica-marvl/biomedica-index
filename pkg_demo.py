@@ -2,9 +2,9 @@ import biomedica_index as bi
 import time
 
 load_start = time.time()
-path = '/pasteur/u/clcp/local_data/bmca_index'                                                                                                   
-index = bi.BiomedicaRetriever(path)                                                                                                              
-loader = bi.BiomedicaArticleLoader(path)#, local_map=f"{path}/full_text-kw/local_pmcid_map.json")
+path = '/pasteur/u/clcp/local_data/bmca_index'
+index = bi.BiomedicaRetriever(path)
+loader = bi.BiomedicaArticleLoader(path, local_map=f"{path}/full_text-kw/local_pmcid_map.json")
 index.query_articles(text="dummy initialization/loading query", top_k=1, subsets='all')
 load_end = time.time()
 print(f"TOTAL LOAD/INITIALIZATION TIME: {load_end - load_start:.2f}s")

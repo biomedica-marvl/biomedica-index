@@ -33,6 +33,7 @@ class BM25Client:
                                   dtype=FILEKEY_MAP_DTYPES[query_type])
         self.tokenizer = bm25s.tokenization.Tokenizer()
         self.retriever = bm25s.BM25.load(self.root, mmap=mmap, load_corpus=False)
+        self.retriever.backend = 'auto'
         self.tokenizer.word_to_id = self.retriever.vocab_dict
         # make masks for bm25 calculations
         sizes = self.CORPUS_SIZES[query_type]
@@ -46,7 +47,8 @@ class BM25Client:
     def query(self, prompts, subset, n_results=5):
         mask = self.subset_masks[subset]
         tokenized = self.tokenizer.tokenize(prompts, return_as="ids")
-        ixs, scores = self.retriever.retrieve(tokenized, k=n_results, weight_mask=mask)
+        ixs, scores = self.retriever.retrieve(tokenized, k=n_results, \
+            weight_mask=mask, n_threads=-1)
         fkeys = [s.decode() for s in self.filekeys[ixs[0]]]
         return fkeys, scores[0]
 
