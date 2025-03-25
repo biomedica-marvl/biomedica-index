@@ -18,19 +18,165 @@
 
 **Welcome to the official Biomedica Index Repository!**
 
-This is a new consumable version of the BIOMEDICA Archive, allowing multimodal retrieval of similar images, captions, and full-text articles. An example of how to use the index for full-text medical answering with LLM agents (BMC-AGENT).
+This is a new consumable version of the BIOMEDICA Archive, allowing multimodal retrieval of similar images, captions, and full-text articles.
 
-## 1. How to query the BIOMEDICA Index?
+## Installation
+To install the full capabilities of the index, run the following command in the environment of your choice:
+```
+pip install "biomedica-index[all] @ git+https://github.com/biomedica-marvl/biomedica-index.git"
+```
 
-## 1.1  Query Similar Articles: 
+For more specific use cases, we provide the following options:
+- `biomedica-index` (no \[brackets\]): Installs minimal dependencies for keyword/BM25-based retrieval, or for vector-based search if `torch`, `torchvision`, and/or `transformers` were installed separately.
+- `bimomedica-index[text]`: For the full range of text-based search capabilities.
+- `biomedica-index[image]`: For image-based search capabilities (but not vector-based text capabilities).
+- `biomedica-index[all]`: Installs the full index.
 
-## 1.2 Query Similar Images/Captions
+## How to query the Biomedica Index
+To make the Biomedica dataset queryable, we currently provide two major tools: 
+- `BiomedicaIndex`: used to retrieve identifying metadata on relevant articles and figures, given text or image prompts
+- `BiomedicaArticleLoader`: loads full-text article data (the title, abstract, and publish date), given identifying metadata
 
+For a simple initial trial, we have provided a simple [Colab notebook](https://colab.research.google.com/drive/15qyeCCY7nlgSnNstJw9kVLHwlvIUZieB?usp=sharing) for initial testing. To use it, please also see the Mounting Data section below. 
 
-## How to use BMC-AGENT?
+Minimal snippet:
+```python
+import biomedica_index as bi
+index = bi.BiomedicaIndex(INDEX_PATH)
+loader = bi.BiomedicaArticleLoader(INDEX_PATH)
+top_articles = index.query_articles(text=text_query, top_k=5, subsets='all')
+for metadata, score in top_articles:
+    print(metadata['pmcid'], metadata['subset'])
+    title, article_body, unix_date = loader.get_article(metadata)
+    # do stuff with the article data
+```
 
+We also provide an example script in `local_article_demo.py` in this repo.
 
+For full details on how to use this package, please see the API reference section below.
 
+For full use, we currently require the data needed for the index to be downloaded locally on the user's machine. Available data for the current index functionality is downloadable [from Google Drive](https://drive.google.com/drive/folders/1MM3-birHJobagiznDZYfHtbFpkuawuPN?usp=drive_link). A more practical solution is currently in development, but we release this version to allow interested parties access to the index as quickly as possible.
+
+### Mounting Data
+Instead of downloading the full data, the folder can also be mounted using [Google Drive for desktop](https://support.google.com/drive/answer/10838124) or using Google Colab. To achieve this, please open the [Google Drive link to the folder](https://drive.google.com/drive/folders/1MM3-birHJobagiznDZYfHtbFpkuawuPN?usp=drive_link) and follow these instructions to add the shared folder as a shortcut within your main Drive:
+- Click on the bmca_index name at the top (the folder name)
+- Select Organize > Add shortcut
+    - This will add a "symlink" to the shared folder within your Google Drive account, making the folder accessible if you mount your main drive anywhere.
+
+### API reference
+```
+class BiomedicaIndex(builtins.object)
+ |  BiomedicaIndex(index_path, embedder_device=None, search_multiplier=1, RRF_k=60)
+ |  
+ |  Class to retrieve the most relevant items in the Biomedica dataset given a query.
+ |  Can retrieve most-relevant articles by text and most-relevant figures by image or text.
+ |  Functions intended for internal use have a leading _underscore.
+ |  
+ |  Methods defined here:
+ |  
+ |  __init__(self, index_path, embedder_device=None, search_multiplier=1, RRF_k=60)
+ |      Initializes the index.
+ |      
+ |      Parameters:
+ |          index_path (str): path to the data needed for the index
+ |          embedder_device (str OR torch.device): device used for query embedding models
+ |          search_multiplier (int): expands the number of items used for hybrid search. specifically,
+ |              the top (k*search_multiplier) results from each search type are considered during RRF
+ |          RRF_k (float): k-value used in the RRF denominator (default is 60, which is commonly used)
+ |  
+ |  query_articles(self, text, top_k=5, subsets='all')
+ |      Retrieves the most relevant figures given an image or caption query.
+ |      
+ |      Parameters:
+ |          text (str): text to use as query for relevant articles via keyword-based (BM25) search
+ |          top_k (int): number of highest-ranking items to return
+ |          subsets (str OR list[str]): either the string 'all' (to use all subsets)
+ |              or a list containing some subset of {'commercial','noncommercial','other'}
+ |      
+ |      Returns:
+ |          a list of (BM25 score, metadata_dict) tuples, where each metadata_dict contains:
+ |              pmcid (str): the PMCID of the article
+ |              subset (str): the Biomedica subset the article comes from
+ |      
+ |      Raises:
+ |          AssertionError: if any of the subsets is not a valid option
+ |  
+ |  query_figures(self, image=None, text=None, text_mode='all', top_k=5, subsets='all')
+ |      Retrieves the most relevant figures given an image or caption query.
+ |      
+ |      Parameters:
+ |          image (PIL.Image): image to use as query for images (embedding similarity search)
+ |          text (str): text to use as query for figure captions
+ |          text_mode (str): specifies how the text query should be used. one of:
+ |              'keyword' = use keyword-based (BM25) search only
+ |              'vector' = use vector-based (embedding similarity) search only
+ |              'all' = use both bm25 and vector-based search
+ |          top_k (int): number of highest-ranking items to return
+ |          subsets (str OR list[str]): either the string 'all' (to use all subsets)
+ |              or a list containing some subset of {'commercial','noncommercial','other'}
+ |      
+ |      Returns:
+ |          a list of (RRF score, metadata_dict) tuples, where each metadata_dict contains:
+ |              pmcid (str): the PMCID of the article the figure comes from
+ |              subset (str): the Biomedica subset the figure comes from
+ |              shard (str): the ID for the Biomedica Webdataset shard the figure comes from
+ |              filekey (str): unique identifier for the figure
+ |              caption_text (str): the text of the original figure caption
+ |      
+ |      Raises:
+ |          AssertionError: if text_mode or any of the subsets is not a valid option
+ |  
+ |  ----------------------------------------------------------------------
+ |  Data and other attributes defined here:
+ |  
+ |  KEYWORD_QUERY_TYPES = ['full_text-kw', 'caption-kw']
+ |  
+ |  QUERY_TYPES = ['image', 'caption', 'full_text-kw', 'caption-kw']
+ |  
+ |  VEC_QUERY_TYPES = ['image', 'caption']
+```
+
+```
+class BiomedicaArticleLoader(builtins.object)
+ |  BiomedicaArticleLoader(index_path, local_article_path=None)
+ |  
+ |  Class to load full-text article data given identifying metadata (subset and PMCID).
+ |  Functions intended for internal use have a leading _underscore.
+ |  
+ |  Methods defined here:
+ |  
+ |  __init__(self, index_path, local_article_path=None)
+ |      Initializes the index.
+ |      
+ |      Parameters:
+ |          index_path (str): path to the data needed for the index. used to find the mapping of
+ |              PMCIDs to actual article text
+ |          local_article_path (str): (optional) path to the local directory where the article
+ |              full-text is stored. If not provided, the loader attempts to find it in the default
+ |              place within the index data itself. Currently required, but will be fully optional
+ |              in the future.
+ |  
+ |  get_article(self, article_metadata)
+ |      Loads article full-text data based on the given metadata.
+ |      
+ |      Parameters:
+ |          article_metadata (dict): dictionary containing metadata for the article. Must contain:
+ |              'subset': the Biomedica subset where the article is located
+ |              'pmcid': the PMCID of the article
+ |      
+ |      Returns:
+ |          tuple of data for the full-text article, specifically: (
+ |              title (str): the title of the article,
+ |              nxml (str): the XML body of the article, saved as a string
+ |              date (str): the date the article was published, represented as a Unix timestamp
+ |          )
+ |      
+ |      Raises:
+ |          KeyError: if the input does not include all necessary identifying metadata
+ |          (for now) NotImplementedError: if the user attempts to load articles non-locally
+```
+
+## Coming soon: Biomedica Index example for RAG-based BMC-AGENT
 <div align="center" style="margin-bottom: -20px;">
     <img src="assets/BMCAgent.svg" alt="Pull Figure" />
 </div>
