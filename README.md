@@ -20,6 +20,25 @@
 
 This is a new consumable version of the BIOMEDICA Archive, allowing multimodal retrieval of similar images, captions, and full-text articles.
 
+## Quickstart
+### Online Demo
+For quick trial/demo purposes, use this **Colab notebook:**
+
+https://colab.research.google.com/drive/15qyeCCY7nlgSnNstJw9kVLHwlvIUZieB?usp=sharing
+
+See also the Mounting Data section below.
+
+### Local Setup
+Code:
+```
+pip install "biomedica-index[all] @ git+https://github.com/biomedica-marvl/biomedica-index.git"
+```
+
+Download (or mount) the **Google Drive folder of necessary index data**:
+
+https://drive.google.com/drive/folders/1MM3-birHJobagiznDZYfHtbFpkuawuPN?usp=drive_link
+
+
 ## Installation
 To install the full capabilities of the index, run the following command in the environment of your choice:
 ```
