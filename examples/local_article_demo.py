@@ -2,11 +2,11 @@ import biomedica_index as bi
 import os
 import time
 
-load_start = time.time()
 if 'BIOMEDICA_INDEX_PATH' in os.environ:
     INDEX_PATH = os.environ['BIOMEDICA_INDEX_PATH']
 else:
     INDEX_PATH = input("Please enter your local path to the index > ")
+load_start = time.time()
 index = bi.BiomedicaIndex(INDEX_PATH)
 loader = bi.BiomedicaArticleLoader(INDEX_PATH)
 index.query_articles(text="dummy initialization/loading query", top_k=1, subsets='all')
