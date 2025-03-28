@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.2.1 (2025/03/28)
+- add more options for infrastructure supporting the ArticleLoader and the Index
+
 ## v0.2.0 (2025/03/24)
 - add docstrings for user-facing functions
 - eliminate args used for dev purposes and refactor function and class names

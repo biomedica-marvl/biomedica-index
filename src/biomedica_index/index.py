@@ -7,35 +7,59 @@ import botocore.exceptions
 
 from biomedica_index.clients import BM25Client, VectorClient
 from biomedica_index.utils.embed_utils import SentenceEmbedder, ImageEmbedder
-from biomedica_index.utils.consts import SUBSETS, S3_BUCKET, S3_REGION
+from biomedica_index.utils.consts import SUBSETS, S3_BUCKET, S3_REGION, INDEX_PATH_VAR
 
 class BiomedicaArticleLoader:
     """
     Class to load full-text article data given identifying metadata (subset and PMCID).
     Functions intended for internal use have a leading _underscore.
     """
-    def __init__(self, index_path, local_article_path=None):
+    def __init__(self, index_path=None, pmcid_article_map=None, local_article_path=None):
         """
         Initializes the index.
 
         Parameters:
             index_path (str): path to the data needed for the index. used to find the mapping of
                 PMCIDs to actual article text
+            pmcid_article_map (str): (optional) path to an overriding JSON file that maps PMCIDs
+                to the locations of article batch files, as they are stored on the user's system
             local_article_path (str): (optional) path to the local directory where the article
                 full-text is stored. If not provided, the loader attempts to find it in the default
                 place within the index data itself. Currently required, but will be fully optional
                 in the future.
         """
-        self.local_path = local_article_path
-        default_path = f"{index_path}/ARTICLES"
-        if (local_article_path is None) and os.path.exists(default_path):
-            self.local_path = default_path
-        self.article_maps = {}
-        article_map_path = f"{index_path}/full_text-kw/full/pmcid_map.json"
-        with open(article_map_path, 'r') as fh:
-            self.article_maps = json.load(fh)
-        if self.local_path is not None:
-            self.s3_client = boto3.client('s3', region_name=S3_REGION)
+        if index_path is None:
+            if (index_path := os.getenv(INDEX_PATH_VAR)) is None:
+                raise ValueError("Index path must be given as a parameter "
+                                 f"or in the environment variable {INDEX_PATH_VAR}")
+
+        default_root = index_path + "/ARTICLES"
+        default_map_path = index_path + "/full_text-kw/full/pmcid_map.json"
+
+        self.local = True # try to read locally first
+        if pmcid_article_map_path is not None:
+            # option 1: provide your own mapping of PMCIDs directly to article batch files
+            with open(pmcid_article_map_path, 'r') as fh:
+                self.article_maps = json.load(fh)
+            self.local_root = None
+        else:
+            # use the default PMCID -> article map
+            with open(default_map_path, 'r') as fh:
+                self.article_maps = json.load(fh)
+            # option 2: provide a path to where the article batch files are stored
+            if local_article_path is not None:
+                local_root = local_article_path
+                if os.path.exists(local_root):
+                    self.local_root = local_root
+                else:
+                    raise ValueError(f"No valid path to articles found at {local_root}")
+            # option 3: read from the default path where article batch files should be
+            elif os.path.exists(default_root):
+                self.local_root = default_root
+            # option 4: use S3 bucket
+            else:
+                self.local = False
+                self.s3_client = boto3.client('s3', region_name=S3_REGION)
 
     def _get_article_s3(self, subset, pmcid):
         raise NotImplementedError("S3 Bucket is currently not available")
@@ -52,7 +76,9 @@ class BiomedicaArticleLoader:
         return None, None, None
         
     def _get_article_local(self, subset, pmcid):
-        batch_path = f"{self.local_path}/{self.article_maps[subset][pmcid]}"
+        batch_path = self.article_maps[subset][pmcid]
+        if self.local_root is not None:
+            batch_path = os.path.join(self.local_root, batch_path)
         with open(batch_path, 'r') as article_batch_fh:
             article_batch = json.load(article_batch_fh)
         for article in article_batch:
@@ -82,7 +108,7 @@ class BiomedicaArticleLoader:
         """
         if not all(key in article_metadata for key in ('subset', 'pmcid')):
             raise KeyError("Local loading requires `subset` and `pmcid`")
-        get = self._get_article_s3 if self.local_path is None else self._get_article_local
+        get = self._get_article_local if self.local else self._get_article_s3
         return get(article_metadata['subset'], article_metadata['pmcid'])
 
 
@@ -96,7 +122,7 @@ class BiomedicaIndex:
     KEYWORD_QUERY_TYPES = ['full_text-kw', 'caption-kw']
     QUERY_TYPES = VEC_QUERY_TYPES + KEYWORD_QUERY_TYPES
 
-    def __init__(self, index_path, embedder_device=None, search_multiplier=1, RRF_k=60):
+    def __init__(self, index_path=None, embedder_device=None, search_multiplier=1, RRF_k=60):
         """
         Initializes the index.
 
@@ -107,6 +133,10 @@ class BiomedicaIndex:
                 the top (k*search_multiplier) results from each search type are considered during RRF
             RRF_k (float): k-value used in the RRF denominator (default is 60, which is commonly used)
         """
+        if index_path is None:
+            if (index_path := os.getenv(INDEX_PATH_VAR)) is None:
+                raise ValueError("Index path must be given as a parameter "
+                                 f"or in the environment variable {INDEX_PATH_VAR}")
         self.index_path = index_path
         self.clients = {}
         # lazy-load the vector clients

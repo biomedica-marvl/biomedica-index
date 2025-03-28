@@ -174,16 +174,18 @@ class BiomedicaArticleLoader(builtins.object)
  |  
  |  Methods defined here:
  |  
- |  __init__(self, index_path, local_article_path=None)
+ |  __init__(self, index_path=None, pmcid_article_map=None, local_article_path=None)
  |      Initializes the index.
- |      
+ |
  |      Parameters:
  |          index_path (str): path to the data needed for the index. used to find the mapping of
  |              PMCIDs to actual article text
+ |          pmcid_article_map (str): (optional) path to an overriding JSON file that maps PMCIDs
+ |              to the locations of article batch files, as they are stored on the user's system
  |          local_article_path (str): (optional) path to the local directory where the article
  |              full-text is stored. If not provided, the loader attempts to find it in the default
  |              place within the index data itself. Currently required, but will be fully optional
- |              in the future.
+ |              in the future. 
  |  
  |  get_article(self, article_metadata)
  |      Loads article full-text data based on the given metadata.

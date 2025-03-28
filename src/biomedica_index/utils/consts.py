@@ -1,3 +1,4 @@
+INDEX_PATH_VAR = "BIOMEDICA_INDEX_PATH"
 SUBSETS = ["commercial", "noncommercial", "other"]
 BIOMEDICA_ROOT = "https://huggingface.co/datasets/BIOMEDICA/biomedica_webdataset_24M/resolve/main"
 FILEKEY_MAP_DTYPES = {f"caption-kw": 'S164', f"full_text-kw": 'S11'}
