@@ -10,7 +10,7 @@
 <p align="center">
   <strong>Arxiv:</strong> <a href="https://arxiv.org/pdf/2501.07171" target="_blank">Arxiv</a> 
   &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
-  <strong>Website:</strong> <a href="https://minwoosun.github.io/biomedica-website" target="_blank">Biomedica</a>
+  <strong>Website:</strong> <a href="https://minwoosun.github.io/index-website/" target="_blank">Biomedica Index</a>
   &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
    <strong>Models and Datasets </strong> <a href="https://huggingface.co/BIOMEDICA" target="_blank">Hugging Face</a>
 </p>
