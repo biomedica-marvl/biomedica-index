@@ -13,7 +13,7 @@ else:
 rib_xray = Image.open('assets/rib_xray.jpg')
 pseudovirus = Image.open('assets/pseudovirus_infection.jpg')
 load_start = time.time()
-index = bi.BiomedicaIndex(INDEX_PATH)
+index = bi.BiomedicaIndex(index_path=INDEX_PATH)
 # index.query_figures(text="dummy initialization query", image=rib_xray, top_k=1, subsets='all')
 index.query_figures(text="dummy initialization query", top_k=1, subsets='all')
 # index.query_figures(image=rib_xray, top_k=1, subsets='all')
