@@ -73,7 +73,7 @@ for metadata, score in top_articles:
     # do stuff with the article data
 ```
 
-For figures (note: data is still currently being uploaded to the Drive folder):
+For figures:
 ```python
 import biomedica_index as bi
 from PIL import Image
@@ -204,6 +204,14 @@ class BiomedicaArticleLoader(builtins.object)
  |          KeyError: if the input does not include all necessary identifying metadata
  |          (for now) NotImplementedError: if the user attempts to load articles non-locally
 ```
+
+## Data
+The Google Drive folder contains the following sub-directories:
+- `ARTICLES` contains batches of full-text articles and is used by the `BiomedicaArticleLoader` to retrieve a full-text article given its PMCID.
+- `full_text-kw` contains the BM25 pre-computed index needed to compute the **most relevant articles** given a user query.
+- `caption-kw` contains the BM25 pre-computed index needed to compute the **most relevant figure captions** given a user query.
+- `caption` contains the ChromaDB vector databases needed to use **vector-based caption search**.
+- `image` contains the ChromaDB vector databases needed to use **vector-based image search**.
 
 ## Coming soon: Biomedica Index example for RAG-based BMC-AGENT
 <div align="center" style="margin-bottom: -20px;">
