@@ -37,9 +37,9 @@ class BiomedicaArticleLoader:
         default_map_path = index_path + "/full_text-kw/full/pmcid_map.json"
 
         self.local = True # try to read locally first
-        if pmcid_article_map_path is not None:
+        if pmcid_article_map is not None:
             # option 1: provide your own mapping of PMCIDs directly to article batch files
-            with open(pmcid_article_map_path, 'r') as fh:
+            with open(pmcid_article_map, 'r') as fh:
                 self.article_maps = json.load(fh)
             self.local_root = None
         else:
