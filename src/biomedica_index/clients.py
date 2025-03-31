@@ -35,6 +35,7 @@ class BM25Client:
         self.retriever = bm25s.BM25.load(self.root, mmap=mmap, load_corpus=False)
         self.retriever.backend = 'auto'
         self.tokenizer.word_to_id = self.retriever.vocab_dict
+        self.NULL_TOKEN_ID = len(self.retriever.vocab_dict)-1
         # make masks for bm25 calculations
         sizes = self.CORPUS_SIZES[query_type]
         starts = self.CORPUS_STARTS[query_type]
@@ -47,6 +48,9 @@ class BM25Client:
     def query(self, prompts, subset, n_results=5):
         mask = self.subset_masks[subset]
         tokenized = self.tokenizer.tokenize(prompts, return_as="ids")
+        if tokenized[0] == [self.NULL_TOKEN_ID]:
+            # this means no valid tokens were found!!
+            return [], np.array([])
         ixs, scores = self.retriever.retrieve(tokenized, k=n_results, \
             weight_mask=mask, n_threads=-1)
         fkeys = [s.decode() for s in self.filekeys[ixs[0]]]

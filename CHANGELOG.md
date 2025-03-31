@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.2.2 (2025/03/31)
+- fix: better handling of the case where the BM25 query has no valid keywords (returns empty result list)
+
 ## v0.2.1 (2025/03/28)
 - add more options for infrastructure supporting the ArticleLoader and the Index
 
