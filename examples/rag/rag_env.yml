@@ -1,0 +1,18 @@
+name: bmca_rag
+
+channels:
+- conda-forge
+
+dependencies:
+- python>=3.10
+- numpy
+- datasets
+- langchain
+- transformers
+- pip:
+  - pymed
+  - biomedica-index[all] @ git+https://github.com/biomedica-marvl/biomedica-index.git
+  - langchain-community
+  - langchain-openai
+  - langchain-together
+  - langchain-google-genai
