@@ -1,4 +1,35 @@
 from transformers import GPT2Tokenizer
+import re
+import hashlib
+
+
+def strip_thinking_tokens(text: str) -> str:
+    """
+    Removes any <think>...</think> tokens from the provided text.
+
+    Args:
+        text (str): The text to be processed.
+
+    Returns:
+        str: The text with <think>...</think> tokens removed.
+    """
+    return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+
+
+def generate_unique_hash(input_string: str) -> str:
+    """
+    Generates a unique SHA-256 hash based on the input string.
+
+    Args:
+        input_string (str): The string to hash.
+
+    Returns:
+        str: The hexadecimal hash of the input string.
+    """
+    hash_object = hashlib.sha256()
+    hash_object.update(input_string.encode('utf-8'))
+    return hash_object.hexdigest()
+
 
 class Page:
     """
@@ -133,7 +164,7 @@ class TextSplitter:
         """
         max_tok = max_num_tokens or self.max_num_tokens
         assert max_tok is not None
-        tokens = self.tokenizer.encode(text, add_special_tokens=False)
+        tokens = self.tokenizer.encode(text, add_special_tokens=False, verbose=False)
         
         if len(tokens) <= max_tok:
             return [Page(text, tokens)]

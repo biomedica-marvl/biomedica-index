@@ -3,7 +3,7 @@ import re
 import sys
 import time
 import json
-from datetime import datetime
+from datetime import datetime, UTC
 
 import numpy as np
 from datasets import load_dataset
@@ -17,7 +17,7 @@ from biomedica_index       import BiomedicaIndex, BiomedicaArticleLoader
 from llms.queryllms        import QueryLLM
 from llms.querychainllms   import QuerySummaryChainLLM
 from utils.citation_tools  import PubMedCitation
-from utils.split_text      import TextSplitter, Page
+from utils.text_utils      import TextSplitter, Page
 from utils.json_writers    import pretty_print_store,update_json_file,read_jsonl,save_jsonl
 
 ## Load prompts:
@@ -108,20 +108,12 @@ class BiomedicaRAG:
             host_vllm_manually=self.host_vllm_manually)
 
         self.get_info_chain = QuerySummaryChainLLM(
-            provider=self.provider,
-            api_key=self.api_key,
-            model=self.model,
-            parameters=self.parameters,
-            instruction_prompt=self.prompts['get_info'],
-            host_vllm_manually=self.host_vllm_manually)
+            llm_client=self.llm.client,
+            instruction_prompt=self.prompts['get_info'])
 
         self.compile_source_chain = QuerySummaryChainLLM(
-            provider=self.provider,
-            api_key=self.api_key,
-            model=self.model,
-            parameters=self.parameters,
-            instruction_prompt=self.prompts['final_answer'],
-            host_vllm_manually=self.host_vllm_manually)
+            llm_client=self.llm.client,
+            instruction_prompt=self.prompts['final_answer'])
 
             
     def init_splitter(self) -> None:
@@ -264,7 +256,7 @@ class BiomedicaRAG:
             if not date:
                 date_str = "Date not provided"
             elif date.isdigit(): # date is unix time
-                date_str  = datetime.utcfromtimestamp(int(date)).date().strftime("%Y-%m-%d")
+                date_str  = datetime.fromtimestamp(int(date), UTC).date().strftime("%Y-%m-%d")
             else:
                 date_str = date
             pmcid     = article_metadata['pmcid']
@@ -485,7 +477,7 @@ if __name__ == "__main__":
         api_key = input(f"Please provide your API key for {args.provider}: ")
     else:
         api_key = None
-    n_articles:int=14
+    n_articles:int=3
     biomedica_rag = BiomedicaRAG(
         args.provider, args.model, api_key, query_subsets="all",
         index_kwargs=dict(index_path=args.index_path),

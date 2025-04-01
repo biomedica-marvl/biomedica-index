@@ -1,8 +1,6 @@
 import os
-import re
 import time
 import logging
-import hashlib
 import subprocess
 
 
@@ -13,6 +11,9 @@ from openai import OpenAI
 from langchain_together       import ChatTogether
 from langchain.prompts        import PromptTemplate
 from langchain.chains         import load_summarize_chain
+
+
+import utils.text_utils as t_utils
 
 
 # Set up logging configuration
@@ -37,7 +38,7 @@ class QueryLLM:
     Class to interface with various LLM providers (OpenAI, Google, TogetherAI, Anthropic, vLLM).
 
     Args:
-        provider (str): The provider to use (e.g., "google", "openai", "togetherai").
+        provider (str): The provider to use (e.g., "google", "openai", "together").
         api_key (str): The API key for accessing the provider's service.
         model (str): The specific model to query from the provider.
         parameters (dict): Optional parameters for API queries (e.g., temperature, max_tokens).
@@ -74,7 +75,7 @@ class QueryLLM:
             use_cache (bool): Whether to use cache during requests.
             enable_logger (bool): Enable logging for tracking operations.
         """
-        valid_providers = {"google", "openai", "togetherai", "anthropic", "vllm"}
+        valid_providers = {"google", "openai", "together", "anthropic", "vllm"}
         if provider not in valid_providers:
             raise ValueError(f"Invalid provider '{provider}'. Must be one of {valid_providers}")
 
@@ -109,7 +110,7 @@ class QueryLLM:
         if self.enable_logger:
             self.logger.info("Initializing API client...")
 
-        if self.provider == "togetherai":
+        if self.provider == "together":
             self.set_key("TOGETHER_API_KEY")
             self.client = ChatTogether(model=self.model, **self.parameters)
             self.system_tag = "system"
@@ -216,7 +217,7 @@ class QueryLLM:
                 self.logger.info(f"Delaying for {self.delay} seconds...")
             time.sleep(self.delay)
 
-        message_hash: str = self.generate_unique_hash(" ".join([f"{role}: {message}" for role, message in messages]))
+        message_hash: str = t_utils.generate_unique_hash(" ".join([f"{role}: {message}" for role, message in messages]))
 
         if self.cache and self.use_cache:
             if self.enable_logger:
@@ -228,7 +229,7 @@ class QueryLLM:
         if self.cache == False  or self.use_cache == False or response == None:
             if self.enable_logger:
                 self.logger.info(f"Cache miss, querying the provider...")
-            if self.provider in ["togetherai", "openai", "google", "anthropic"]:
+            if self.provider in ["together", "openai", "google", "anthropic"]:
                 response = dict(self.client.invoke(messages))
 
             if self.provider == "vllm":
@@ -249,34 +250,5 @@ class QueryLLM:
         if return_dict:
             return response
         else:
-            r_content = self.strip_thinking_tokens(response.get("content"))
+            r_content = t_utils.strip_thinking_tokens(response.get("content"))
             return r_content
-
-    ### Helper functions
-    @staticmethod
-    def strip_thinking_tokens(text: str) -> str:
-        """
-        Removes any <think>...</think> tokens from the provided text.
-
-        Args:
-            text (str): The text to be processed.
-
-        Returns:
-            str: The text with <think>...</think> tokens removed.
-        """
-        return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
-
-    @staticmethod
-    def generate_unique_hash(input_string: str) -> str:
-        """
-        Generates a unique SHA-256 hash based on the input string.
-
-        Args:
-            input_string (str): The string to hash.
-
-        Returns:
-            str: The hexadecimal hash of the input string.
-        """
-        hash_object = hashlib.sha256()
-        hash_object.update(input_string.encode('utf-8'))
-        return hash_object.hexdigest()

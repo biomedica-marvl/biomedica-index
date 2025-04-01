@@ -5,6 +5,6 @@ sys.path.append(dir_path)
 
 import utils
 import llms
-from utils.split_text import TextSplitter
+from utils.text_utils import TextSplitter
 from llms.queryllms import QueryLLM
 from rag_with_index import BiomedicaRAG
