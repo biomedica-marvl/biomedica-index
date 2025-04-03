@@ -21,7 +21,7 @@ from utils.text_utils      import TextSplitter, Page
 from utils.json_writers    import pretty_print_store,update_json_file,read_jsonl,save_jsonl
 
 ## Load prompts:
-from utils.___private      import EVIDENCE_LEVEL_PRIORITIZING_PROMPTS
+from utils.prompts         import PROMPT_SETS
 
 
 #import warnings
@@ -58,7 +58,7 @@ class BiomedicaRAG:
              use_cache:bool     = True,
              enable_logger:bool = False,
              host_vllm_manually:bool = True,
-             prompts:dict       = EVIDENCE_LEVEL_PRIORITIZING_PROMPTS,
+             prompt_type:str       = 'basic',
 
             ### Index arguments: 
             query_subsets:str   = "all",
@@ -82,7 +82,7 @@ class BiomedicaRAG:
         # option 1: explicitly set max_tokens > option 2: max_tokens known for model type > 4096 default
         self.max_input_token = parameters.get("max_tokens", self.KNOWN_MAX_TOKENS.get(self.model, 4096))
 
-        self.prompts = prompts
+        self.prompts = PROMPT_SETS[prompt_type]
         ### Index arguments:
         self.query_subsets = query_subsets
       
@@ -477,7 +477,7 @@ if __name__ == "__main__":
         api_key = input(f"Please provide your API key for {args.provider}: ")
     else:
         api_key = None
-    n_articles:int=3
+    n_articles:int=14
     biomedica_rag = BiomedicaRAG(
         args.provider, args.model, api_key, query_subsets="all",
         index_kwargs=dict(index_path=args.index_path),
@@ -490,7 +490,7 @@ if __name__ == "__main__":
     # question:str  = "What are the most common genetic mutations in activated B cell-like (ABC) diffuse large B-Cell lymphoma (DLBCL)?"
     while (question := input('Question ["q" to quit] > ')) != 'q':
         query_start = time.time()
-        answer = biomedica_rag.forward(question,n_articles=n_articles)
+        output = biomedica_rag.forward(question,n_articles=n_articles)
         query_end = time.time()
-        print(answer)
+        print(output['answer'])
         print(f">>> total runtime: {query_end - query_start}s <<<")
