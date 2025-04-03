@@ -184,8 +184,7 @@ class BiomedicaArticleLoader(builtins.object)
  |              to the locations of article batch files, as they are stored on the user's system
  |          local_article_path (str): (optional) path to the local directory where the article
  |              full-text is stored. If not provided, the loader attempts to find it in the default
- |              place within the index data itself. Currently required, but will be fully optional
- |              in the future. 
+ |              place within the index data itself.
  |  
  |  get_article(self, article_metadata)
  |      Loads article full-text data based on the given metadata.
@@ -215,8 +214,9 @@ The Google Drive folder contains the following sub-directories:
 - `caption` contains the ChromaDB vector databases needed to use **vector-based caption search**.
 - `image` contains the ChromaDB vector databases needed to use **vector-based image search**.
 
-## Coming soon: Biomedica Index example for RAG-based BMC-AGENT
+## Biomedica Index example for RAG-based BMC-AGENT
 <div align="center" style="margin-bottom: -20px;">
     <img src="assets/BMCAgent.svg" alt="Pull Figure" />
 </div>
 
+For an example of how to use the index to build a RAG system using full-text articles, please see the `examples/rag` directory!
