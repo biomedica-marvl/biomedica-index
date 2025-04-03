@@ -8,7 +8,7 @@
 
 
 <p align="center">
-  <strong>Arxiv:</strong> <a href="https://arxiv.org/pdf/2501.07171" target="_blank">Arxiv</a> 
+  <strong>Arxiv:</strong> <a href="https://arxiv.org/abs/2503.22727" target="_blank">Arxiv</a> 
   &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
   <strong>Website:</strong> <a href="https://minwoosun.github.io/index-website/" target="_blank">Biomedica Index</a>
   &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
