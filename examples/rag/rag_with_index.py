@@ -1,9 +1,9 @@
-import os 
+import os
 import re
 import sys
 import time
 import json
-from datetime import datetime, UTC
+from datetime import datetime
 
 import numpy as np
 from datasets import load_dataset
@@ -256,7 +256,7 @@ class BiomedicaRAG:
             if not date:
                 date_str = "Date not provided"
             elif date.isdigit(): # date is unix time
-                date_str  = datetime.fromtimestamp(int(date), UTC).date().strftime("%Y-%m-%d")
+                date_str  = datetime.utcfromtimestamp(int(date)).date().strftime("%Y-%m-%d")
             else:
                 date_str = date
             pmcid     = article_metadata['pmcid']
