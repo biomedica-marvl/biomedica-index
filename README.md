@@ -220,3 +220,7 @@ The Google Drive folder contains the following sub-directories:
 </div>
 
 For an example of how to use the index to build a RAG system using full-text articles, please see the `examples/rag` directory!
+
+## Acknowledgement
+
+This work is supported by an NVIDIA grant.
