@@ -223,4 +223,22 @@ For an example of how to use the index to build a RAG system using full-text art
 
 ## Acknowledgement
 
-This work is supported by an NVIDIA grant.
+An NVIDIA Academic grant supported this work.
+
+
+## Citation
+
+@inproceedings{lozano2025biomedica,
+  title={Biomedica: An open biomedical image-caption archive, dataset, and vision-language models derived from scientific literature},
+  author={Lozano, Alejandro and Sun, Min Woo and Burgess, James and Chen, Liangyu and Nirschl, Jeffrey J and Gu, Jeffrey and Lopez, Ivan and Aklilu, Josiah and Rau, Anita and Katzer, Austin Wolfgang and others},
+  booktitle={2025 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages={19724--19735},
+  year={2025},
+  organization={IEEE}
+}
+@article{lozano2025large,
+  title={A large-scale vision-language dataset derived from open scientific literature to advance biomedical generalist ai},
+  author={Lozano, Alejandro and Sun, Min Woo and Burgess, James and Nirschl, Jeffrey J and Polzak, Christopher and Zhang, Yuhui and Chen, Liangyu and Gu, Jeffrey and Lopez, Ivan and Aklilu, Josiah and others},
+  journal={arXiv preprint arXiv:2503.22727},
+  year={2025}
+}
