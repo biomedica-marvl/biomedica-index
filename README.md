@@ -228,6 +228,7 @@ An NVIDIA Academic grant supported this work.
 
 ## Citation
 
+```
 @inproceedings{lozano2025biomedica,
   title={Biomedica: An open biomedical image-caption archive, dataset, and vision-language models derived from scientific literature},
   author={Lozano, Alejandro and Sun, Min Woo and Burgess, James and Chen, Liangyu and Nirschl, Jeffrey J and Gu, Jeffrey and Lopez, Ivan and Aklilu, Josiah and Rau, Anita and Katzer, Austin Wolfgang and others},
@@ -242,3 +243,4 @@ An NVIDIA Academic grant supported this work.
   journal={arXiv preprint arXiv:2503.22727},
   year={2025}
 }
+```
